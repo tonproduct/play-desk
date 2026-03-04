@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 
 const ASAAS_BASE_URL =
   process.env.ASAAS_BASE_URL ?? "https://sandbox.asaas.com/api/v3"
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Buscar aluno com asaas_customer_id
     const { data: aluno, error: alunoError } = await supabase
