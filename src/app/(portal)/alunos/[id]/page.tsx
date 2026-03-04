@@ -107,7 +107,7 @@ export default function AlunoDetailPage() {
       supabase.from("turmas").select("*").order("nome"),
       supabase.from("servicos").select("*").eq("ativo", true).order("nome"),
     ])
-    if (!alunoData) { router.push("/alunos"); return }
+    if (!alunoData) { setLoading(false); return }
     setAluno(alunoData as Aluno)
     setAlunoTurmas((atData ?? []) as AlunoTurma[])
     setAlunoServicos((asData ?? []) as AlunoServico[])
@@ -206,7 +206,7 @@ export default function AlunoDetailPage() {
     )
   }
 
-  if (!aluno) return null
+  if (!aluno) return <div className="p-8 text-center text-red-500">Aluno não encontrado. ID: {params.id}</div>
 
   const turmaIdsAtivos = alunoTurmas.map((t) => t.turma_id)
   const servicoIdsAtivos = alunoServicos.map((s) => s.servico_id)
