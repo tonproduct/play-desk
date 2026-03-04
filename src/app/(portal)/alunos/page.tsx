@@ -75,6 +75,7 @@ export default function AlunosPage() {
   const [nome, setNome] = useState("")
   const [whatsapp, setWhatsapp] = useState("")
   const [email, setEmail] = useState("")
+  const [cpfCnpj, setCpfCnpj] = useState("")
   const [diaVencimento, setDiaVencimento] = useState("10")
   const [turmasSel, setTurmasSel] = useState<ItemSelecionado[]>([])
   const [servicosSel, setServicosSel] = useState<ItemSelecionado[]>([])
@@ -119,6 +120,7 @@ export default function AlunosPage() {
     setNome("")
     setWhatsapp("")
     setEmail("")
+    setCpfCnpj("")
     setDiaVencimento("10")
     setTurmasSel([])
     setServicosSel([])
@@ -161,6 +163,7 @@ export default function AlunosPage() {
           nome: nome.trim(),
           whatsapp: whatsapp.replace(/\D/g, ""),
           email: email.trim() || null,
+          cpf_cnpj: cpfCnpj.replace(/\D/g, "") || null,
           dia_vencimento: parseInt(diaVencimento) || 10,
           status: "ativo",
         })
@@ -198,6 +201,7 @@ export default function AlunosPage() {
           nome: novoAluno.nome,
           whatsapp: novoAluno.whatsapp,
           email: novoAluno.email,
+          cpf_cnpj: novoAluno.cpf_cnpj,
         }),
       }).catch(() => null)
 
@@ -375,6 +379,14 @@ export default function AlunosPage() {
                   placeholder="joao@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label>CPF / CNPJ *</Label>
+                <Input
+                  placeholder="000.000.000-00"
+                  value={cpfCnpj}
+                  onChange={(e) => setCpfCnpj(e.target.value)}
                 />
               </div>
             </div>

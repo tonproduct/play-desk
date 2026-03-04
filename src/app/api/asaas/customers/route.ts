@@ -6,7 +6,7 @@ const ASAAS_BASE_URL =
 
 export async function POST(request: Request) {
   try {
-    const { aluno_id, nome, whatsapp, email } = await request.json()
+    const { aluno_id, nome, whatsapp, email, cpf_cnpj } = await request.json()
 
     if (!aluno_id || !nome || !whatsapp) {
       return NextResponse.json({ error: "Campos obrigatórios faltando" }, { status: 400 })
@@ -14,6 +14,7 @@ export async function POST(request: Request) {
 
     // Formatar WhatsApp (somente dígitos)
     const mobilePhone = whatsapp.replace(/\D/g, "")
+    const cpfCnpjClean = cpf_cnpj ? cpf_cnpj.replace(/\D/g, "") : null
 
     // Criar cliente no Asaas
     const asaasRes = await fetch(`${ASAAS_BASE_URL}/customers`, {
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
         name: nome,
         mobilePhone,
         ...(email ? { email } : {}),
+        ...(cpfCnpjClean ? { cpfCnpj: cpfCnpjClean } : {}),
       }),
     })
 

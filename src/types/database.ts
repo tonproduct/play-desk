@@ -36,6 +36,7 @@ export interface Aluno {
   nome: string
   whatsapp: string
   email: string | null
+  cpf_cnpj: string | null
   dia_vencimento: number
   status: AlunoStatus
   asaas_customer_id: string | null

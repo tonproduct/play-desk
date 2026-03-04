@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm ls react-hook-form zod)",
+      "Bash(npm ls @hookform/resolvers)",
+      "Bash(npm run build)",
+      "Bash(/c/Users/ludimonte/projetos/play-desk/.env.local:*)",
+      "Bash(head -1 src/app/\\\\\\(portal\\\\\\)/alunos/page.tsx)",
+      "Bash(python3 -c \":*)",
+      "Bash(head -1 \"src/app/\\(portal\\)/alunos/[id]/page.tsx\")",
+      "Bash(wc -l \"src/app/\\(portal\\)/alunos/[id]/page.tsx\")",
+      "Bash(npm run dev)"
+    ]
+  }
+}

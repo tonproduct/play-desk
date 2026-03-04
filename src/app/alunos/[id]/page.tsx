@@ -74,7 +74,7 @@ export default function AlunoDetailPage() {
   const [servicosDisp, setServicosDisp] = useState<Servico[]>([])
   const [loading, setLoading] = useState(true)
   const [editando, setEditando] = useState(false)
-  const [form, setForm] = useState({ nome: "", whatsapp: "", email: "", dia_vencimento: "10" })
+  const [form, setForm] = useState({ nome: "", whatsapp: "", email: "", cpf_cnpj: "", dia_vencimento: "10" })
   const [salvando, setSalvando] = useState(false)
   const [confirmarInativo, setConfirmarInativo] = useState(false)
   const [dialogCobranca, setDialogCobranca] = useState(false)
@@ -114,7 +114,7 @@ export default function AlunoDetailPage() {
     setPagamentos((pagData ?? []) as Pagamento[])
     setTurmasDisp(turmasData ?? [])
     setServicosDisp(servicosData ?? [])
-    setForm({ nome: alunoData.nome, whatsapp: alunoData.whatsapp, email: alunoData.email ?? "", dia_vencimento: String(alunoData.dia_vencimento) })
+    setForm({ nome: alunoData.nome, whatsapp: alunoData.whatsapp, email: alunoData.email ?? "", cpf_cnpj: alunoData.cpf_cnpj ?? "", dia_vencimento: String(alunoData.dia_vencimento) })
     setLoading(false)
   }
 
@@ -127,6 +127,7 @@ export default function AlunoDetailPage() {
       nome: form.nome.trim(),
       whatsapp: form.whatsapp.replace(/\D/g, ""),
       email: form.email.trim() || null,
+      cpf_cnpj: form.cpf_cnpj.replace(/\D/g, "") || null,
       dia_vencimento: parseInt(form.dia_vencimento),
     }).eq("id", params.id)
     if (error) toast.error("Erro ao salvar")
@@ -266,7 +267,7 @@ export default function AlunoDetailPage() {
             <CardContent className="flex flex-col gap-3 text-sm">
               {editando ? (
                 <>
-                  {[["Nome", "nome", "text"], ["WhatsApp", "whatsapp", "text"], ["Email", "email", "email"], ["Dia venc.", "dia_vencimento", "number"]].map(([lbl, key, type]) => (
+                  {[["Nome", "nome", "text"], ["WhatsApp", "whatsapp", "text"], ["Email", "email", "email"], ["CPF/CNPJ", "cpf_cnpj", "text"], ["Dia venc.", "dia_vencimento", "number"]].map(([lbl, key, type]) => (
                     <div key={key} className="flex flex-col gap-1">
                       <Label className="text-xs">{lbl}</Label>
                       <Input type={type} className="h-8 text-sm" value={form[key as keyof typeof form]} onChange={(e) => setForm((p) => ({ ...p, [key]: e.target.value }))} />
@@ -277,6 +278,7 @@ export default function AlunoDetailPage() {
                 <>
                   <Row label="WhatsApp" value={aluno.whatsapp} />
                   <Row label="Email" value={aluno.email ?? "nao informado"} />
+                  <Row label="CPF/CNPJ" value={aluno.cpf_cnpj ?? "nao informado"} />
                   <Row label="Vencimento" value={"Dia " + aluno.dia_vencimento} />
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Status</span>
