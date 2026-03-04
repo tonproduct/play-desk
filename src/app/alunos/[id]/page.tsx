@@ -190,7 +190,10 @@ export default function AlunoDetailPage() {
       body: JSON.stringify({ aluno_id: params.id, mes_referencia: mesCobranca, valor: valorTotal }),
     })
     if (res.ok) { toast.success("Cobranca gerada!"); setDialogCobranca(false); loadAluno() }
-    else toast.error("Erro ao gerar cobranca")
+    else {
+      const data = await res.json().catch(() => ({}))
+      toast.error(data.detail ? `Asaas: ${data.detail}` : "Erro ao gerar cobranca")
+    }
     setGerandoCobranca(false)
   }
 

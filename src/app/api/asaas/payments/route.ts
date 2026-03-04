@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       const errorBody = await asaasRes.text()
       console.error("Erro Asaas payments:", errorBody)
       return NextResponse.json(
-        { error: "Erro ao criar cobrança no Asaas" },
+        { error: "Erro ao criar cobrança no Asaas", detail: errorBody },
         { status: 502 }
       )
     }
