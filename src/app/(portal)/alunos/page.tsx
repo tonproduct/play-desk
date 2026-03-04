@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Plus, Search, ChevronRight } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
@@ -61,6 +62,7 @@ interface AlunoComTotal extends Aluno {
 }
 
 export default function AlunosPage() {
+  const router = useRouter()
   const supabase = createClient()
   const [alunos, setAlunos] = useState<AlunoComTotal[]>([])
   const [turmas, setTurmas] = useState<Turma[]>([])
@@ -295,7 +297,11 @@ export default function AlunosPage() {
               </TableRow>
             ) : (
               alunosFiltrados.map((aluno) => (
-                <TableRow key={aluno.id}>
+                <TableRow
+                  key={aluno.id}
+                  className="cursor-pointer"
+                  onClick={() => router.push(`/alunos/${aluno.id}`)}
+                >
                   <TableCell className="font-medium">{aluno.nome}</TableCell>
                   <TableCell className="text-muted-foreground">
                     {aluno.whatsapp}
@@ -316,11 +322,9 @@ export default function AlunosPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Link href={`/alunos/${aluno.id}`}>
-                      <Button variant="ghost" size="icon" className="h-7 w-7">
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </Link>
+                    <Button variant="ghost" size="icon" className="h-7 w-7">
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
