@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 
 // Webhook do Asaas — recebe eventos de pagamento
 export async function POST(request: Request) {
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Payload inválido" }, { status: 400 })
     }
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     if (event === "PAYMENT_RECEIVED" || event === "PAYMENT_CONFIRMED") {
       const chargeId: string = payment.id
