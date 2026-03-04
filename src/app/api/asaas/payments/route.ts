@@ -6,9 +6,9 @@ const ASAAS_BASE_URL =
 
 export async function POST(request: Request) {
   try {
-    const { aluno_id, mes_referencia, valor } = await request.json()
+    const { aluno_id, mes_referencia, valor: valorParam } = await request.json()
 
-    if (!aluno_id || !mes_referencia || !valor) {
+    if (!aluno_id || !mes_referencia) {
       return NextResponse.json(
         { error: "Campos obrigatórios faltando" },
         { status: 400 }
@@ -31,6 +31,25 @@ export async function POST(request: Request) {
     if (!aluno.asaas_customer_id) {
       return NextResponse.json(
         { error: "Aluno não tem cadastro no Asaas" },
+        { status: 400 }
+      )
+    }
+
+    // Calcular valor se não fornecido
+    let valor = valorParam
+    if (!valor) {
+      const [{ data: turmas }, { data: servicos }] = await Promise.all([
+        supabase.from("aluno_turmas").select("valor").eq("aluno_id", aluno_id).eq("ativo", true),
+        supabase.from("aluno_servicos").select("valor").eq("aluno_id", aluno_id).eq("ativo", true),
+      ])
+      const totalTurmas = (turmas ?? []).reduce((s, r) => s + (r.valor ?? 0), 0)
+      const totalServicos = (servicos ?? []).reduce((s, r) => s + (r.valor ?? 0), 0)
+      valor = totalTurmas + totalServicos
+    }
+
+    if (!valor || valor <= 0) {
+      return NextResponse.json(
+        { error: "Aluno não tem turmas ou serviços ativos para cobrar" },
         { status: 400 }
       )
     }
@@ -89,7 +108,7 @@ export async function POST(request: Request) {
     const { error: pagError } = await supabase.from("pagamentos").insert({
       aluno_id,
       mes_referencia,
-      valor,
+      valor: valor,
       status: "pendente",
       asaas_charge_id: chargeId,
       link_pagamento: linkPagamento,
