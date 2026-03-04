@@ -49,6 +49,7 @@ export interface AlunoTurma {
   aluno_id: string
   turma_id: string
   valor: number
+  dia_vencimento: number | null
   ativo: boolean
   data_inicio: string
   created_at: string
@@ -62,6 +63,7 @@ export interface AlunoServico {
   aluno_id: string
   servico_id: string
   valor: number
+  dia_vencimento: number | null
   ativo: boolean
   data_inicio: string
   created_at: string

@@ -6,9 +6,9 @@ const ASAAS_BASE_URL =
 
 export async function POST(request: Request) {
   try {
-    const { aluno_id, mes_referencia, valor: valorParam } = await request.json()
+    const { aluno_id, mes_referencia, valor, dia_vencimento } = await request.json()
 
-    if (!aluno_id || !mes_referencia) {
+    if (!aluno_id || !mes_referencia || !valor) {
       return NextResponse.json(
         { error: "Campos obrigatórios faltando" },
         { status: 400 }
@@ -35,28 +35,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Calcular valor se não fornecido
-    let valor = valorParam
-    if (!valor) {
-      const [{ data: turmas }, { data: servicos }] = await Promise.all([
-        supabase.from("aluno_turmas").select("valor").eq("aluno_id", aluno_id).eq("ativo", true),
-        supabase.from("aluno_servicos").select("valor").eq("aluno_id", aluno_id).eq("ativo", true),
-      ])
-      const totalTurmas = (turmas ?? []).reduce((s, r) => s + (r.valor ?? 0), 0)
-      const totalServicos = (servicos ?? []).reduce((s, r) => s + (r.valor ?? 0), 0)
-      valor = totalTurmas + totalServicos
-    }
-
-    if (!valor || valor <= 0) {
-      return NextResponse.json(
-        { error: "Aluno não tem turmas ou serviços ativos para cobrar" },
-        { status: 400 }
-      )
-    }
-
-    // Calcular data de vencimento
+    // Calcular data de vencimento — usa dia_vencimento do item ou do aluno
+    const diaVenc = dia_vencimento ?? aluno.dia_vencimento
     const [ano, mes] = mes_referencia.split("-").map(Number)
-    const dataVencimento = new Date(ano, mes - 1, aluno.dia_vencimento)
+    const dataVencimento = new Date(ano, mes - 1, diaVenc)
     const dueDate = dataVencimento.toISOString().split("T")[0]
 
     // Criar cobrança Pix no Asaas
@@ -108,7 +90,7 @@ export async function POST(request: Request) {
     const { error: pagError } = await supabase.from("pagamentos").insert({
       aluno_id,
       mes_referencia,
-      valor: valor,
+      valor,
       status: "pendente",
       asaas_charge_id: chargeId,
       link_pagamento: linkPagamento,

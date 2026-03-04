@@ -84,8 +84,10 @@ export default function AlunoDetailPage() {
   const [dialogAddServico, setDialogAddServico] = useState(false)
   const [addTurmaId, setAddTurmaId] = useState("")
   const [addTurmaValor, setAddTurmaValor] = useState("")
+  const [addTurmaDiaVenc, setAddTurmaDiaVenc] = useState("")
   const [addServicoId, setAddServicoId] = useState("")
   const [addServicoValor, setAddServicoValor] = useState("")
+  const [addServicoDiaVenc, setAddServicoDiaVenc] = useState("")
   const [adicionando, setAdicionando] = useState(false)
 
   useEffect(() => { loadAluno() }, [params.id])
@@ -149,7 +151,13 @@ export default function AlunoDetailPage() {
     if (!addTurmaId) { toast.error("Selecione uma turma"); return }
     setAdicionando(true)
     const { error } = await supabase.from("aluno_turmas").upsert(
-      { aluno_id: params.id, turma_id: addTurmaId, valor: parseFloat(addTurmaValor) || 0, ativo: true },
+      {
+        aluno_id: params.id,
+        turma_id: addTurmaId,
+        valor: parseFloat(addTurmaValor) || 0,
+        dia_vencimento: addTurmaDiaVenc ? parseInt(addTurmaDiaVenc) : null,
+        ativo: true,
+      },
       { onConflict: "aluno_id,turma_id" }
     )
     if (error) toast.error("Erro ao adicionar")
@@ -161,7 +169,13 @@ export default function AlunoDetailPage() {
     if (!addServicoId) { toast.error("Selecione um servico"); return }
     setAdicionando(true)
     const { error } = await supabase.from("aluno_servicos").upsert(
-      { aluno_id: params.id, servico_id: addServicoId, valor: parseFloat(addServicoValor) || 0, ativo: true },
+      {
+        aluno_id: params.id,
+        servico_id: addServicoId,
+        valor: parseFloat(addServicoValor) || 0,
+        dia_vencimento: addServicoDiaVenc ? parseInt(addServicoDiaVenc) : null,
+        ativo: true,
+      },
       { onConflict: "aluno_id,servico_id" }
     )
     if (error) toast.error("Erro ao adicionar")
@@ -185,16 +199,21 @@ export default function AlunoDetailPage() {
 
   async function gerarCobranca() {
     setGerandoCobranca(true)
-    const res = await fetch("/api/asaas/payments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ aluno_id: params.id, mes_referencia: mesCobranca, valor: valorTotal }),
-    })
-    if (res.ok) { toast.success("Cobranca gerada!"); setDialogCobranca(false); loadAluno() }
-    else {
-      const data = await res.json().catch(() => ({}))
-      toast.error(data.detail ? `Asaas: ${data.detail}` : "Erro ao gerar cobranca")
+    const itens = [
+      ...alunoTurmas.map((t) => ({ valor: t.valor, dia_vencimento: t.dia_vencimento })),
+      ...alunoServicos.map((s) => ({ valor: s.valor, dia_vencimento: s.dia_vencimento })),
+    ]
+    let erros = 0
+    for (const item of itens) {
+      const res = await fetch("/api/asaas/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ aluno_id: params.id, mes_referencia: mesCobranca, valor: item.valor, dia_vencimento: item.dia_vencimento }),
+      })
+      if (!res.ok) erros++
     }
+    if (erros === 0) { toast.success(`${itens.length} cobrança(s) gerada(s)!`); setDialogCobranca(false); loadAluno() }
+    else toast.error(`${erros} cobrança(s) falharam`)
     setGerandoCobranca(false)
   }
 
@@ -403,6 +422,10 @@ export default function AlunoDetailPage() {
               <Label>Valor (R$)</Label>
               <Input type="number" value={addTurmaValor} onChange={(e) => setAddTurmaValor(e.target.value)} />
             </div>
+            <div className="flex flex-col gap-1.5">
+              <Label>Dia de vencimento <span className="text-muted-foreground">(opcional)</span></Label>
+              <Input type="number" min="1" max="31" placeholder={`Padrão: dia ${aluno.dia_vencimento}`} value={addTurmaDiaVenc} onChange={(e) => setAddTurmaDiaVenc(e.target.value)} />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogAddTurma(false)}>Cancelar</Button>
@@ -425,6 +448,10 @@ export default function AlunoDetailPage() {
             <div className="flex flex-col gap-1.5">
               <Label>Valor (R$)</Label>
               <Input type="number" value={addServicoValor} onChange={(e) => setAddServicoValor(e.target.value)} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label>Dia de vencimento <span className="text-muted-foreground">(opcional)</span></Label>
+              <Input type="number" min="1" max="31" placeholder={`Padrão: dia ${aluno.dia_vencimento}`} value={addServicoDiaVenc} onChange={(e) => setAddServicoDiaVenc(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
