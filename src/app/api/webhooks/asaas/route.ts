@@ -4,6 +4,11 @@ import { createClient } from "@/lib/supabase/server"
 // Webhook do Asaas — recebe eventos de pagamento
 export async function POST(request: Request) {
   try {
+    const token = request.headers.get("asaas-access-token")
+    if (process.env.ASAAS_WEBHOOK_TOKEN && token !== process.env.ASAAS_WEBHOOK_TOKEN) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const body = await request.json()
     const { event, payment } = body
 
