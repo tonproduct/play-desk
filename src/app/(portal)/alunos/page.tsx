@@ -64,6 +64,7 @@ interface ItemSelecionado {
   id: string
   nome: string
   valor: string
+  diaVencimento: string
 }
 
 interface AlunoComTotal extends Aluno {
@@ -139,14 +140,14 @@ export default function AlunosPage() {
   function toggleTurma(t: Turma) {
     setTurmasSel((prev) => {
       if (prev.find((x) => x.id === t.id)) return prev.filter((x) => x.id !== t.id)
-      return [...prev, { id: t.id, nome: t.nome, valor: String(t.valor_mensalidade) }]
+      return [...prev, { id: t.id, nome: t.nome, valor: String(t.valor_mensalidade), diaVencimento: "" }]
     })
   }
 
   function toggleServico(s: Servico) {
     setServicosSel((prev) => {
       if (prev.find((x) => x.id === s.id)) return prev.filter((x) => x.id !== s.id)
-      return [...prev, { id: s.id, nome: s.nome, valor: String(s.valor) }]
+      return [...prev, { id: s.id, nome: s.nome, valor: String(s.valor), diaVencimento: "" }]
     })
   }
 
@@ -188,6 +189,7 @@ export default function AlunosPage() {
             aluno_id: novoAluno.id,
             turma_id: t.id,
             valor: parseFloat(t.valor) || 0,
+            dia_vencimento: t.diaVencimento ? parseInt(t.diaVencimento) : null,
           }))
         )
       }
@@ -198,6 +200,7 @@ export default function AlunosPage() {
             aluno_id: novoAluno.id,
             servico_id: s.id,
             valor: parseFloat(s.valor) || 0,
+            dia_vencimento: s.diaVencimento ? parseInt(s.diaVencimento) : null,
           }))
         )
       }
@@ -466,14 +469,28 @@ export default function AlunosPage() {
                           <span className="text-xs text-muted-foreground">R$</span>
                           <Input
                             type="number"
-                            className="h-7 w-24 text-xs"
+                            className="h-7 w-20 text-xs"
                             value={sel.valor}
                             onChange={(e) =>
                               setTurmasSel((p) =>
                                 p.map((x) =>
-                                  x.id === t.id
-                                    ? { ...x, valor: e.target.value }
-                                    : x
+                                  x.id === t.id ? { ...x, valor: e.target.value } : x
+                                )
+                              )
+                            }
+                          />
+                          <span className="text-xs text-muted-foreground">Dia</span>
+                          <Input
+                            type="number"
+                            min="1"
+                            max="28"
+                            placeholder="—"
+                            className="h-7 w-14 text-xs"
+                            value={sel.diaVencimento}
+                            onChange={(e) =>
+                              setTurmasSel((p) =>
+                                p.map((x) =>
+                                  x.id === t.id ? { ...x, diaVencimento: e.target.value } : x
                                 )
                               )
                             }
@@ -513,14 +530,28 @@ export default function AlunosPage() {
                           <span className="text-xs text-muted-foreground">R$</span>
                           <Input
                             type="number"
-                            className="h-7 w-24 text-xs"
+                            className="h-7 w-20 text-xs"
                             value={sel.valor}
                             onChange={(e) =>
                               setServicosSel((p) =>
                                 p.map((x) =>
-                                  x.id === s.id
-                                    ? { ...x, valor: e.target.value }
-                                    : x
+                                  x.id === s.id ? { ...x, valor: e.target.value } : x
+                                )
+                              )
+                            }
+                          />
+                          <span className="text-xs text-muted-foreground">Dia</span>
+                          <Input
+                            type="number"
+                            min="1"
+                            max="28"
+                            placeholder="—"
+                            className="h-7 w-14 text-xs"
+                            value={sel.diaVencimento}
+                            onChange={(e) =>
+                              setServicosSel((p) =>
+                                p.map((x) =>
+                                  x.id === s.id ? { ...x, diaVencimento: e.target.value } : x
                                 )
                               )
                             }
