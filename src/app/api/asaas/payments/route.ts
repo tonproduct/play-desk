@@ -68,6 +68,7 @@ export async function POST(request: Request) {
 
     const asaasPayment = await asaasRes.json()
     const chargeId: string = asaasPayment.id
+    const invoiceUrl: string = asaasPayment.invoiceUrl ?? `${ASAAS_BASE_URL.replace("/api/v3", "")}/i/${chargeId}`
 
     // Buscar QR Code / link Pix
     let linkPagamento: string | null = null
@@ -105,7 +106,7 @@ export async function POST(request: Request) {
       )
     }
 
-    return NextResponse.json({ charge_id: chargeId, link_pagamento: linkPagamento })
+    return NextResponse.json({ charge_id: chargeId, link_pagamento: linkPagamento, invoice_url: invoiceUrl })
   } catch (err) {
     console.error("Erro inesperado:", err)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
